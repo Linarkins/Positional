@@ -1,0 +1,93 @@
+uses crt;
+var
+  ss,to_ss,res,change,chose:integer;
+  TD:string;
+  label insert;
+  
+{Для перевода дек. числа в любую сс}
+function From(n,r:longint):string;
+var
+  s:String;
+const
+  digit:string[16]='0123456789ABCDEF'; {Значение информационной части элемента списка}
+begin
+  s:='';
+  repeat
+    s:=digit[(n mod r)+1]+s;
+    n:=n div r;
+  until n=0;
+    From:=s;
+end;
+
+{Для перевода любой сс в дек.}
+function Conv(n:string;r:longint):longint;
+var
+  m,i:longint;
+const
+  digit:string[16]='0123456789ABCDEF';
+begin
+  m:=0;
+  while n[1]='0' do
+    delete(n,1,1);
+  for i:=1 to length(n) do
+    m:=m*r+pos(n[i],digit)-1;
+  Conv:=m;
+end;
+
+{Основная программы}
+begin
+  writeln ('Выберите что надо сделать:');
+  writeln;
+  writeln('1: Выполнить перевод'); 
+  writeln('2: Выход');
+  writeln;
+  insert: readln(chose);
+  case chose of
+  1: Begin
+  writeln;
+  writeln('Введите из какой CC:');
+  repeat
+    readln(ss);
+    if (ss<2) then
+      Begin
+        writeln ('Ошибка!');
+        writeln ('Введите СС => 2');
+        writeln;
+      end;
+    if (ss>36) then
+      Begin
+        writeln ('Ошибка!');
+        writeln ('Введите СС <=36');
+        writeln;
+      end;
+  until (ss>=2) and (ss<=36);
+  writeln('Введите число в соответствии с CC:');
+  readln(TD);
+  writeln('Введите в какую CC:');
+  repeat
+    readln(to_ss);
+    if (to_ss<2) then
+      Begin
+        writeln ('Ошибка!');
+        writeln ('Введите СС => 2');
+        writeln;
+      end;
+    if (to_ss>36) then
+      Begin
+        writeln ('Ошибка!');
+        writeln ('Введите СС <=36');
+        writeln;
+      end;
+  until
+    (to_ss>=2) and (to_ss<=36);
+  writeln('Перевод из ',ss,' CC --> ',to_ss,' CC:');
+  writeln(From(Conv(TD,ss),to_ss));
+  end;
+  2: exit;
+  else 
+    begin
+    writeln ('Введите 1 или 2');
+    goto insert;
+    end;
+  end;
+end.
