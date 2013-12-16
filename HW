@@ -1,93 +1,128 @@
 uses crt;
-var
-  ss,to_ss,res,change,chose:integer;
-  TD:string;
-  label insert;
-  
-{Для перевода дек. числа в любую сс}
-function From(n,r:longint):string;
-var
-  s:String;
-const
-  digit:string[16]='0123456789ABCDEF'; {Значение информационной части элемента списка}
-begin
-  s:='';
-  repeat
-    s:=digit[(n mod r)+1]+s;
-    n:=n div r;
-  until n=0;
-    From:=s;
+const digit: string[36] = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+var res, s, s2, s3: string;
+    ind, cc1, cc2: integer;
+
+{Разделение дробной и целой части}
+Procedure Sep(var ss: string);
+Var i: integer;
+Begin
+  ind:= 0;
+  s2:= '';
+  for i:= 1 to length(ss) do  {Перебор строки}
+    if ss[i] in ['.'] then
+    Begin
+      ind:= i; 
+      break
+    end
+    else  
+      s2:= s2 + ss[i]; {Целая часть}
+  s3:= '';
+  if ind <> 0 then
+  Begin
+    delete(s, 1, ind);
+    s3:= ss; {Дробная часть}
+  end;
 end;
 
-{Для перевода любой сс в дек.}
-function Conv(n:string;r:longint):longint;
-var
-  m,i:longint;
-const
-  digit:string[16]='0123456789ABCDEF';
-begin
-  m:=0;
-  while n[1]='0' do
-    delete(n,1,1);
-  for i:=1 to length(n) do
-    m:=m*r+pos(n[i],digit)-1;
-  Conv:=m;
+{Проверка на то, может ли быть число в заданной системе счисления}
+Function Check(d: integer; s: string):boolean;
+Var
+ i, ch, j:integer;
+Begin
+ch:=0;
+for i:=1 to d do
+  Begin
+    for j:=1 to length(s) do
+      if s[j]=digit[i] then
+      inc(ch);
+  end;
+if ch=length(s) then {Если все символы в этой СС}
+  Check:=true
+else
+  Check:=false;
 end;
 
-{Основная программы}
+{Перевод целой части числа из 10-й СС}
+Function Int(d: string; c: integer): string;
+Var s: string;
+    k: integer;
+    n2:real;
+Begin
+  val(d,n2,k); {Перевод строки в число}
+  s:= '';
+  repeat
+    s:= ((digit[round(n2) mod c + 1]) + s);
+    n2:= round(n2) div c;
+  until (n2 = 0);
+  Int:= s;
+end;
+ 
+{Перевод целой части из любой СС в 10-ю}
+Function Conv(var ss: string; cc: byte): string;
+Var i, n, sum: longint;
+    s: string;
 begin
-  writeln ('Выберите что надо сделать:');
-  writeln;
-  writeln('1: Выполнить перевод'); 
-  writeln('2: Выход');
-  writeln;
-  insert: readln(chose);
-  case chose of
-  1: Begin
-  writeln;
-  writeln('Введите из какой CC:');
-  repeat
-    readln(ss);
-    if (ss<2) then
-      Begin
-        writeln ('Ошибка!');
-        writeln ('Введите СС => 2');
-        writeln;
-      end;
-    if (ss>36) then
-      Begin
-        writeln ('Ошибка!');
-        writeln ('Введите СС <=36');
-        writeln;
-      end;
-  until (ss>=2) and (ss<=36);
-  writeln('Введите число в соответствии с CC:');
-  readln(TD);
-  writeln('Введите в какую CC:');
-  repeat
-    readln(to_ss);
-    if (to_ss<2) then
-      Begin
-        writeln ('Ошибка!');
-        writeln ('Введите СС => 2');
-        writeln;
-      end;
-    if (to_ss>36) then
-      Begin
-        writeln ('Ошибка!');
-        writeln ('Введите СС <=36');
-        writeln;
-      end;
-  until
-    (to_ss>=2) and (to_ss<=36);
-  writeln('Перевод из ',ss,' CC --> ',to_ss,' CC:');
-  writeln(From(Conv(TD,ss),to_ss));
+  sum:= 0;
+  n:= length(ss);
+  for i:= 1 to n do {Перебор строки}
+  begin
+    dec(n);
+    sum:= sum + round((pos(ss[i], digit) - 1) * exp(ln(cc) * n));
   end;
-  2: exit;
-  else 
-    begin
-    writeln ('Введите 1 или 2');
-    goto insert;
-    end;
-  end;
+  str(sum,s); {Перевод числа в строку}
+  Conv:= s;
+end;
+ 
+{Перевод дробной части из 10-й СС}
+Function Frac(d: string; t, c: integer): string;
+Var s: string;
+    l, m: real;
+    i, k: integer;
+Begin
+val(d,m,k); {Перевод строки в число}
+  s:= ''; 
+  i:= 0;
+    repeat
+      l:= m * c;
+      m:= frac(l);
+      s:= s + digit[round(int(l)) + 1];
+      inc(i);
+    until i=t;
+  Frac:= s;
+end;
+ 
+{Перевод дробной части из произвольной СС  в 10-ю}
+Function ConvFrac(ss: string; c: integer): string;
+Var i: integer;
+    sum: real;
+    s:string;
+Begin
+  for i:= 1 to length(ss) do {Перебор строки (дробная часть)}
+    sum:= sum + (pos(ss[i], digit) - 1) * exp(ln(c) * -i); {(Позиция символа строки - 1) * онование системы счисления в степени * - i}
+  str(sum,s); {Перевод числа в строку}
+  ConvFrac:= s;
+end;
+ 
+{Основная программа}
+Begin
+  ClrScr;
+  repeat
+    writeln('Введите из какой CC:');
+    readln(cc1);
+    writeln('Введите СС в которую хотите перевести: ');
+    readln(cc2);
+  until (cc1 in [2..36]) and (cc2 in [2..36]); {Проверка ввода}
+  repeat
+    writeln('Введите число в соответствии с CC: ');
+    readln(s);
+    Sep(s); {Разбивка на дробную и целую части строки}
+    if not Check(cc1,s2) and not Check(cc1,s3)  then
+      write('Ошибка!')
+  until Check(cc1,s2) and Check(cc1,s3);
+  if ind = 0 then
+    res:= Int(Conv(s2, cc1), cc2)
+  else
+    res:= Int(Conv(s2, cc1), cc2) + ',' + Frac(ConvFrac(s3, cc1), length(s3), cc2);
+  writeln('Число ',s,' (',cc1,' СС) в ',cc2,'-й СС = ',res);
 end.
