@@ -9,19 +9,19 @@ Var i: integer;
 Begin
   ind:= 0;
   s2:= '';
-  for i:= 1 to length(ss) do  {Перебор строки}
+  for i:= 1 to length(ss) do
     if ss[i] in ['.'] then
     Begin
       ind:= i; 
       break
     end
     else  
-      s2:= s2 + ss[i]; {Целая часть}
+      s2:= s2 + ss[i];
   s3:= '';
   if ind <> 0 then
   Begin
     delete(s, 1, ind);
-    s3:= ss; {Дробная часть}
+    s3:= ss;
   end;
 end;
 
@@ -37,7 +37,7 @@ for i:=1 to d do
       if s[j]=digit[i] then
       inc(ch);
   end;
-if ch=length(s) then {Если все символы в этой СС}
+if ch=length(s) then
   Check:=true
 else
   Check:=false;
@@ -49,7 +49,7 @@ Var s: string;
     k: integer;
     n2:real;
 Begin
-  val(d,n2,k); {Перевод строки в число}
+  val(d,n2,k);
   s:= '';
   repeat
     s:= ((digit[round(n2) mod c + 1]) + s);
@@ -65,12 +65,12 @@ Var i, n, sum: longint;
 begin
   sum:= 0;
   n:= length(ss);
-  for i:= 1 to n do {Перебор строки}
+  for i:= 1 to n do
   begin
     dec(n);
     sum:= sum + round((pos(ss[i], digit) - 1) * exp(ln(cc) * n));
   end;
-  str(sum,s); {Перевод числа в строку}
+  str(sum,s);
   Conv:= s;
 end;
  
@@ -80,7 +80,7 @@ Var s: string;
     l, m: real;
     i, k: integer;
 Begin
-val(d,m,k); {Перевод строки в число}
+val(d,m,k);
   s:= ''; 
   i:= 0;
     repeat
@@ -98,9 +98,9 @@ Var i: integer;
     sum: real;
     s:string;
 Begin
-  for i:= 1 to length(ss) do {Перебор строки (дробная часть)}
-    sum:= sum + (pos(ss[i], digit) - 1) * exp(ln(c) * -i); {(Позиция символа строки - 1) * онование системы счисления в степени * - i}
-  str(sum,s); {Перевод числа в строку}
+  for i:= 1 to length(ss) do
+    sum:= sum + (pos(ss[i], digit) - 1) * exp(ln(c) * -i);
+  str(sum,s);
   ConvFrac:= s;
 end;
  
@@ -112,17 +112,17 @@ Begin
     readln(cc1);
     writeln('Введите СС в которую хотите перевести: ');
     readln(cc2);
-  until (cc1 in [2..36]) and (cc2 in [2..36]); {Проверка ввода}
+  until (cc1 in [2..36]) and (cc2 in [2..36]);
   repeat
     writeln('Введите число в соответствии с CC: ');
     readln(s);
-    Sep(s); {Разбивка на дробную и целую части строки}
+    Sep(s);
     if not Check(cc1,s2) and not Check(cc1,s3)  then
       write('Ошибка!')
   until Check(cc1,s2) and Check(cc1,s3);
   if ind = 0 then
     res:= Int(Conv(s2, cc1), cc2)
   else
-    res:= Int(Conv(s2, cc1), cc2) + ',' + Frac(ConvFrac(s3, cc1), length(s3), cc2);
+    res:= Int(Conv(s2, cc1), cc2) + '.' + Frac(ConvFrac(s3, cc1), length(s3), cc2);
   writeln('Число ',s,' (',cc1,' СС) в ',cc2,'-й СС = ',res);
 end.
